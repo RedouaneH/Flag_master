@@ -1,3 +1,0 @@
-bleu bg  10 55 76
-bleu 2  42 82 108
-bleu blanc 176 200 204
