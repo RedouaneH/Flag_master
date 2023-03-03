@@ -19,7 +19,6 @@ def display_flag(screen, cur_width, cur_height, flag_name):
     flag_init = pygame.image.load(f'Flags/{flag_name}')
     flag = pygame.transform.scale(flag_init, flag_size)
 
-    
     screen.blit(flag, ((cur_width-flag_size[0])/2, (cur_height-flag_size[1])/2.6))
     
     

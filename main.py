@@ -1,44 +1,65 @@
 import asyncio
 import pygame
-import random
 from display_images import *
-from degrade import *
 from settings import *
 from flags import *
-from os import listdir
-from os.path import isfile, join
+import pygame_gui
 
 async def main():
+
     pygame.init()
     clock = pygame.time.Clock()
-    # genere la fenetre du jeu
+    
+
+    width = WIDTH
+    height = HEIGHT
+
+    # Generates the game window
     pygame.display.set_caption(GAME_NAME)
-    screen = pygame.display.set_mode((WIDTH,HEIGHT), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
     logo = pygame.image.load('Images/logo.ico')
     pygame.display.set_icon(logo)
     background_color = COLOR_BLUE
-    # Initialisation
-    cur_page = 'menu'
-    # Drapeaux 
-    FLAG=Flag()
-    color_menu = color()
-    timer = 0 #20 sec
 
-    # boucle du jeux 
+    # Initialisation - main menu
+    cur_page = 'menu'
+
+    # Initialisation flag class
+    FLAG = Flag()
+
+    # 20 sec
+    timer = 0
+
+    FLAG.set_manag(width, height)
+    FLAG.set_txt(width, height)
+
+    # game lop 
     while True:
+        UI_REFRESH_RATE = clock.tick(60)/1000
 
         pygame.display.flip()
         clock.tick(FPS)
         screen.fill(background_color)
-        width, height = pygame.display.get_surface().get_size()
+        cur_width = pygame.display.get_surface().get_size()[0]
+        cur_height = pygame.display.get_surface().get_size()[1]
 
+        if cur_width != width or cur_height != height:
+            width, height = pygame.display.get_surface().get_size()
+            if cur_page == 'game':
+                FLAG.set_manag(width, height)
+                FLAG.set_txt(width, height)
+
+        # main menu
         if cur_page == 'menu':
-            color_menu.update()
-            background_color = (color_menu.get(),111,204)
             display_menu_image(screen, width, height)
 
+        # flag displayed
         if cur_page == 'game':
-            if timer == 0 :
+
+            
+            
+
+            if timer == 0:
                 FLAG.clear()
                 if FLAG.number == 10 :
                     cur_page = 'first_correction'
@@ -47,37 +68,46 @@ async def main():
                     timer = 1200
 
             FLAG.display_flags(screen, width, height, flag_name, timer)
-            background_color = (color_menu.get(),111,204)
             timer = timer - 1
 
+            FLAG.manag.update(UI_REFRESH_RATE)
+            FLAG.manag.draw_ui(screen)
+
+        # correction for the first five flags
         if cur_page == 'first_correction':
             FLAG.display_first_correction(screen, width, height)
 
+        # correction for the next five flags
         if cur_page == 'second_correction':
             FLAG.display_second_correction(screen, width, height)
 
 
-        # Gestion des évènements
+        # events management
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
             if cur_page == 'game':
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_BACKSPACE:
-                        FLAG.txt = FLAG.txt[:-1]
-                    elif event.key == pygame.K_RETURN:
-                        if flag_name.lower() == FLAG.txt.lower()+'.png':
-                            FLAG.correction.append([FLAG.txt,flag_name,True])
-                        else:
-                            FLAG.correction.append([FLAG.txt,flag_name,False])
-
-                        timer = 0
-                        FLAG.clear()
+                if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_object_id == "#main_text_entry":
+                    if flag_name.lower() == event.text.lower()+'.png':
+                        FLAG.correction.append([event.text, flag_name, True])
                     else:
-                        FLAG.txt += event.unicode
+                        FLAG.correction.append([event.text, flag_name, False])
 
-            
+                    timer = 0
+                    FLAG.set_manag(width, height)
+                    FLAG.set_txt(width, height)
+
+                '''
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN and event.text != '':
+                        timer = 0
+                        FLAG.correction.append(['', flag_name, False])
+                        FLAG.set_manag(width, height)
+                        FLAG.set_txt(width, height)
+                '''
+                           
+                FLAG.manag.process_events(event)
 
             if cur_page == 'second_correction':
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
@@ -93,8 +123,11 @@ async def main():
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                     cur_page = 'game'
 
+        
 
+        pygame.display.update()
 
         await asyncio.sleep(0)
-                       
+
+
 asyncio.run(main())
