@@ -24,9 +24,6 @@ class Flag:
         self.txt_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((0.3333*width, 0.64*height), (width*0.33333, 0.040*height)), manager=self.manag,
                                                 object_id='#main_text_entry')
 
-
-        
-
     def clear(self):
         self.txt = ''
 

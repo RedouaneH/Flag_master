@@ -9,7 +9,6 @@ async def main():
 
     pygame.init()
     clock = pygame.time.Clock()
-    
 
     width = WIDTH
     height = HEIGHT
@@ -97,15 +96,6 @@ async def main():
                     timer = 0
                     FLAG.set_manag(width, height)
                     FLAG.set_txt(width, height)
-
-                '''
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN and event.text != '':
-                        timer = 0
-                        FLAG.correction.append(['', flag_name, False])
-                        FLAG.set_manag(width, height)
-                        FLAG.set_txt(width, height)
-                '''
                            
                 FLAG.manag.process_events(event)
 
@@ -122,8 +112,6 @@ async def main():
             elif cur_page == 'menu':
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                     cur_page = 'game'
-
-        
 
         pygame.display.update()
 
